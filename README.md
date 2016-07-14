@@ -76,6 +76,9 @@ Then, create the Python part of your tests:
             self.assertTrue(self.casper(
                 os.path.join(os.path.dirname(__file__),
                     'casper-tests/test.js')))
+                    
+            # or just simply
+            self.assertCasper('test.js')
 
 Then, create the CasperJS part. Create a `casper-tests` directory somewhere
 (eg. in your `tests` directory). Copy `djangocasper.js` helper JS module
@@ -120,6 +123,12 @@ in your Python tests:
                 'casper-tests/test.js')),
             user=fixture_username,
             pass=fixture_password)
+            
+        # Or tersely
+        self.assertCasper('test.js',
+            user=fixture_username,
+            pass=fixture_password)
+        
 
 Then access these keyword arguments from the JS file:
 
