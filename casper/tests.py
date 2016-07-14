@@ -2,6 +2,7 @@ from django.test import LiveServerTestCase
 from subprocess import Popen, PIPE
 import os
 import sys
+import inspect
 
 from django.contrib.staticfiles.handlers import StaticFilesHandler
 from django.contrib.staticfiles.views import serve
@@ -25,6 +26,7 @@ class CasperTestCase(LiveServerTestCase):
     use_phantom_disk_cache = False
     load_images = False
     no_colors = True
+    casper_directory = None
 
     def __init__(self, *args, **kwargs):
         super(CasperTestCase, self).__init__(*args, **kwargs)
@@ -78,3 +80,17 @@ class CasperTestCase(LiveServerTestCase):
             sys.stdout.write(out)
             sys.stderr.write(err)
         return p.returncode == 0
+
+    def get_casper_dir(self):
+        """Get the directory containing casper files"""
+        if self.casper_directory:
+            return self.casper_directory
+        root = os.path.dirname(inspect.getfile(type(self)))
+        auto = os.path.join(root, 'casper-tests')
+        return auto if os.path.isdir(auto) else root
+
+    def assertCasper(self, casper_file, msg=None, **kwargs):
+        """Automate the casper API into a single assert"""
+        if not os.path.isfile(casper_file) and casper_directory:
+            casper_file = os.path.join(self.casper_directory, casper_file)
+        self.assertTrue(self.casper(casper_file, **kwargs), msg)
